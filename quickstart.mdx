@@ -1,80 +1,118 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Get started with DefinitelyTyped"
+description: "Learn how to install @types packages and use DefinitelyTyped type definitions in your TypeScript project, with a working example using @types/node."
 ---
 
-## Get started in three steps
+DefinitelyTyped makes it easy to add TypeScript type safety to JavaScript libraries that don't ship their own types. This guide walks you through installing types and using them in a TypeScript project.
 
-Get your documentation site running locally and make your first customization.
+## Install types for a package
 
-### Step 1: Set up your local environment
+To install type definitions for a package, use your package manager with the `@types/` prefix:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<CodeGroup>
+```bash npm
+npm install --save-dev @types/node
+```
+```bash yarn
+yarn add --dev @types/node
+```
+```bash pnpm
+pnpm add --save-dev @types/node
+```
+</CodeGroup>
 
-### Step 2: Deploy your changes
+After installation, TypeScript automatically includes the types. You may need to add a reference if you're not using ES modules:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+```typescript
+/// <reference types="node" />
+```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Check if a package has types
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+There are three ways a package can provide TypeScript types:
 
-### Step 3: Go live
+1. **Bundled types** — The package includes a `types` or `typings` field in its `package.json`. No extra install needed.
+2. **DefinitelyTyped** — Install `@types/<package-name>` separately.
+3. **No types available** — You may need to write your own or use `declare module`.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+<Tip>
+Visit [npmjs.com](https://www.npmjs.com) and search for your package. If it has a TypeScript icon (TS) badge, types are bundled. If it has a DT badge, types are available via DefinitelyTyped.
+</Tip>
+
+## Quick example: using @types/node
+
+<Steps>
+  <Step title="Create a TypeScript project">
+    ```bash
+    mkdir my-project && cd my-project
+    npm init -y
+    npm install typescript --save-dev
+    npx tsc --init
+    ```
+  </Step>
+  <Step title="Install Node.js types">
+    ```bash
+    npm install --save-dev @types/node
+    ```
+  </Step>
+  <Step title="Write typed Node.js code">
+    Create `index.ts` with fully typed Node.js APIs:
+    ```typescript index.ts
+    import * as fs from "fs";
+    import * as path from "path";
+
+    const filePath: string = path.join(__dirname, "hello.txt");
+    fs.writeFileSync(filePath, "Hello from TypeScript!");
+
+    const content: string = fs.readFileSync(filePath, "utf-8");
+    console.log(content);
+    ```
+  </Step>
+  <Step title="Compile and run">
+    ```bash
+    npx tsc
+    node index.js
+    ```
+  </Step>
+</Steps>
+
+## Find the right package name
+
+For most packages, the `@types` package name matches the npm package name:
+
+| npm package | @types package |
+|-------------|----------------|
+| `lodash` | `@types/lodash` |
+| `react` | `@types/react` |
+| `express` | `@types/express` |
+| `node` | `@types/node` |
+
+For **scoped packages** (like `@babel/core`), the `@` and `/` are replaced with double underscore:
+
+```bash
+npm install --save-dev @types/babel__core
+```
+
+See [Scoped packages](/using-types/scoped-packages) for more details.
+
+## Older TypeScript versions
+
+DefinitelyTyped only tests packages on TypeScript versions that are less than 2 years old. For older TypeScript versions, `@types` packages have dist-tags you can target:
+
+```bash
+# See available TypeScript version tags for a package
+npm dist-tags @types/react
+```
+
+This shows tags like `ts2.5`, `ts2.6`, etc., which you can install for compatibility with older TypeScript versions.
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Using types" icon="box" href="/using-types/installing-types">
+    Learn more about installing and referencing @types packages
+  </Card>
+  <Card title="Contribute" icon="code-pull-request" href="/contributing/overview">
+    Add or improve type definitions for libraries you use
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

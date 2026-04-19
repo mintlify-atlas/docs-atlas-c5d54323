@@ -1,97 +1,58 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "DefinitelyTyped: TypeScript type definitions for npm"
+description: "DefinitelyTyped hosts high-quality TypeScript type definitions for thousands of npm packages, automatically published as @types/* packages on npm."
 ---
 
-## Setting up
+DefinitelyTyped is the community repository powering TypeScript's `@types` ecosystem. With over 8,000 type definition packages maintained by contributors worldwide, it lets you add TypeScript type safety to nearly any JavaScript library with a single `npm install`.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Install types" icon="download" href="/using-types/installing-types">
+    Learn how to find and install @types packages for your project
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Get up and running with DefinitelyTyped in minutes
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Contribute types" icon="code-pull-request" href="/contributing/overview">
+    Add or improve type definitions for your favorite libraries
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Package structure" icon="folder-tree" href="/package-structure/index-dts">
+    Understand how a DefinitelyTyped package is organized
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What is DefinitelyTyped?
 
-Everything you need to create world-class documentation.
+TypeScript requires type information to provide autocomplete, error checking, and refactoring support. Many JavaScript libraries ship without TypeScript types. DefinitelyTyped solves this by hosting community-maintained `.d.ts` declaration files for those libraries.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+When you install `@types/node` or `@types/react`, you're using DefinitelyTyped. The `master` branch is automatically published to the `@types` scope on npm by [DefinitelyTyped-tools](https://github.com/microsoft/DefinitelyTyped-tools).
 
-## Need inspiration?
+## Get started in seconds
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+```bash
+npm install --save-dev @types/node
+```
+
+For most packages, this is all you need. TypeScript will automatically pick up the types.
+
+## Explore the docs
+
+<CardGroup cols={3}>
+  <Card title="Using types" icon="box" href="/using-types/installing-types">
+    Install @types packages and reference them in your project
+  </Card>
+  <Card title="Support window" icon="calendar" href="/using-types/support-window">
+    Learn which TypeScript versions DefinitelyTyped supports
+  </Card>
+  <Card title="Scoped packages" icon="at" href="/using-types/scoped-packages">
+    Work with @types for scoped npm packages
+  </Card>
+  <Card title="Create a package" icon="plus" href="/contributing/create-package">
+    Add type definitions for a new library
+  </Card>
+  <Card title="Edit a package" icon="pen" href="/contributing/edit-package">
+    Improve or fix existing type definitions
+  </Card>
+  <Card title="Advanced topics" icon="graduation-cap" href="/advanced/versioning">
+    Versioning, module formats, and breaking changes
+  </Card>
+</CardGroup>

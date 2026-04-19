@@ -1,0 +1,56 @@
+---
+title: "Controlling published files with .npmignore"
+description: "Learn how to write the .npmignore file for DefinitelyTyped packages to control which declaration files are included in the published @types package on npm."
+---
+
+Every DefinitelyTyped package requires an `.npmignore` file that specifies which files are published to npm. This file ensures only declaration files (`.d.ts`) are included in the published `@types` package — test files, `tsconfig.json`, and other development files are excluded.
+
+## Standard format (single version)
+
+For packages with a single version in the repository, use this exact format:
+
+```ignore .npmignore
+*
+!**/*.d.ts
+!**/*.d.cts
+!**/*.d.mts
+!**/*.d.*.ts
+```
+
+This means: **ignore everything, except declaration files**. The negation patterns (`!`) explicitly allow the four types of declaration file extensions.
+
+## Format for packages with multiple versions
+
+When a package has versioned subdirectories (e.g., `/v15/`, `/v16/`), the latest version's `.npmignore` must also exclude the version directories:
+
+```ignore .npmignore
+*
+!**/*.d.ts
+!**/*.d.cts
+!**/*.d.mts
+!**/*.d.*.ts
+/v15/
+/v16/
+/v17/
+```
+
+Each versioned subdirectory has its own `.npmignore` with only the first four lines (since it doesn't contain further subdirectories).
+
+## Declaration file extensions
+
+The four declaration file extension patterns correspond to:
+
+| Pattern | File type |
+|---------|-----------|
+| `**/*.d.ts` | Standard TypeScript declarations |
+| `**/*.d.cts` | CommonJS module declarations |
+| `**/*.d.mts` | ES module declarations |
+| `**/*.d.*.ts` | Other declaration variants (e.g., `.d.dom.ts`) |
+
+## CI validation
+
+CI will fail if your `.npmignore` contains incorrect contents and will show the expected value. No matter what the file contains, the publisher only ever publishes declaration files — but the `.npmignore` must still be correct for CI to pass.
+
+<Note>
+Test files (`*-tests.ts`), `tsconfig.json`, `package.json`, and other development files should not be published to npm. The `.npmignore` ensures this automatically with the wildcard `*` at the top.
+</Note>

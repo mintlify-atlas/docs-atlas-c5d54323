@@ -1,0 +1,160 @@
+---
+title: "Writing index.d.ts declaration files"
+description: "Learn how to write TypeScript declaration files (index.d.ts) for DefinitelyTyped packages, including module syntax, exports, namespaces, and common patterns."
+---
+
+The `index.d.ts` file is the heart of every DefinitelyTyped package. It contains the TypeScript type declarations that describe a JavaScript library's public API.
+
+## Basic structure
+
+A well-formed `index.d.ts` typically starts with a header comment:
+
+```typescript index.d.ts
+// Type definitions for my-library 1.2
+// Project: https://github.com/example/my-library
+// Definitions by: Your Name <https://github.com/yourusername>
+
+export interface Options {
+    timeout?: number;
+    retries?: number;
+}
+
+export function fetchData(url: string, options?: Options): Promise<string>;
+```
+
+## Module vs global declarations
+
+Most modern packages use ES module syntax (`export` / `import`). Older or browser-global packages may use ambient declarations.
+
+### ES module package
+
+```typescript
+export interface Config {
+    debug: boolean;
+}
+
+export function initialize(config: Config): void;
+export function shutdown(): Promise<void>;
+```
+
+### CommonJS package (using export =)
+
+When a package uses `module.exports = ...` in JavaScript, use `export =` in your declaration:
+
+```typescript
+declare function doSomething(options: doSomething.Options): void;
+
+declare namespace doSomething {
+    interface Options {
+        verbose: boolean;
+    }
+}
+
+export = doSomething;
+```
+
+Note that types associated with the exported value must be placed inside a namespace with the same name.
+
+<Warning>
+Do not use `export default` for a CommonJS package. Use `export =` instead. Using `export default` when the source uses `module.exports = ...` causes incorrect behavior for consumers without `esModuleInterop` enabled.
+</Warning>
+
+### Global-modifying module
+
+For packages that extend global scope when imported:
+
+```typescript
+// Adds methods to String.prototype
+declare global {
+    interface String {
+        toTitleCase(): string;
+    }
+}
+
+export {};
+```
+
+## Key rules
+
+### Use ReadonlyArray for non-mutating parameters
+
+```typescript
+// Good: communicates the function won't modify the array
+function sum(nums: ReadonlyArray<number>): number;
+
+// Avoid: overly permissive
+function sum(nums: number[]): number;
+```
+
+### Avoid generic functions without constraints
+
+```typescript
+// Bad: the type parameter T is not used in any input, so it's a disguised type assertion
+function parseJson<T>(json: string): T;
+
+// Good: only use generics when the type appears in the parameters
+function identity<T>(value: T): T;
+```
+
+### Avoid `Function` and `Object` types
+
+```typescript
+// Bad
+function handleEvent(callback: Function): void;
+
+// Good: use a specific function signature
+function handleEvent(callback: (event: Event) => void): void;
+
+// Bad
+function merge(a: Object, b: Object): Object;
+
+// Good: use a more specific type
+function merge<T extends object>(a: T, b: Partial<T>): T;
+```
+
+### Avoid `any` in union types
+
+```typescript
+// Bad: the string part is meaningless — this is just `any`
+type Result = string | any;
+
+// Good: use a real union or just `any` if truly unknown
+type Result = string | Record<string, unknown>;
+```
+
+## Declaring classes
+
+```typescript
+// Good
+declare class Foo {
+    constructor(options?: FooOptions);
+    bar(): string;
+}
+
+// Avoid: defines a "new-able" interface instead of a class
+interface Foo {
+    new(): Foo;
+}
+```
+
+## Subpath exports
+
+If a library exposes multiple entry points (e.g., `my-lib/utils`), declare each in a separate file and reference it in the `exports` field of `package.json`:
+
+```
+types/my-package/
+  index.d.ts          → import from "my-package"
+  utils.d.ts          → import from "my-package/utils"
+  package.json        → with exports field
+```
+
+## Related topics
+
+<CardGroup cols={2}>
+  <Card title="package.json reference" icon="brackets-curly" href="/package-structure/package-json">
+    Configure name, version, owners, and dependencies
+  </Card>
+  <Card title="Common mistakes" icon="triangle-exclamation" href="/advanced/common-mistakes">
+    Avoid the most frequent declaration file errors
+  </Card>
+</CardGroup>

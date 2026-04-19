@@ -1,0 +1,66 @@
+---
+title: "Installing @types for scoped npm packages"
+description: "DefinitelyTyped uses double-underscore naming for scoped packages. Learn how to install @types for packages like @babel/core and @aws-sdk/client-s3."
+---
+
+Scoped npm packages follow the naming convention `@scope/package`. DefinitelyTyped supports type definitions for scoped packages, but the naming convention for the corresponding `@types` package differs slightly from the source package.
+
+## Naming convention
+
+Because npm package names cannot contain two consecutive `@` signs or a `/` inside the package name part, DefinitelyTyped uses a double-underscore (`__`) to represent the scope separator:
+
+| Source package | @types package |
+|---------------|----------------|
+| `@babel/core` | `@types/babel__core` |
+| `@babel/preset-env` | `@types/babel__preset-env` |
+| `@aws-sdk/client-s3` | `@types/aws-sdk__client-s3` |
+
+The rule is: **remove the `@`, replace the `/` with `__`**.
+
+## Install a scoped @types package
+
+<CodeGroup>
+```bash npm
+npm install --save-dev @types/babel__core
+```
+```bash yarn
+yarn add --dev @types/babel__core
+```
+```bash pnpm
+pnpm add --save-dev @types/babel__core
+```
+</CodeGroup>
+
+## Where the types live in the repository
+
+In the DefinitelyTyped repository, scoped package types are stored with the same double-underscore convention:
+
+```
+types/babel__core/        → @types/babel__core on npm
+types/babel__preset-env/  → @types/babel__preset-env on npm
+```
+
+## Check if a scoped package has types
+
+Run `npm info` to check:
+
+```bash
+npm info @types/babel__core
+```
+
+If the package exists, you'll get its metadata. If it doesn't exist, you may need to write the types yourself or check whether the source package bundles its own types.
+
+<Tip>
+Some popular scoped packages bundle their own types. Check the source package's `package.json` for a `"types"` or `"typings"` field before looking for a separate `@types` install.
+</Tip>
+
+## Related topics
+
+<CardGroup cols={2}>
+  <Card title="Installing types" icon="download" href="/using-types/installing-types">
+    General guide to installing @types packages
+  </Card>
+  <Card title="Create a package" icon="plus" href="/contributing/create-package">
+    Add types for a scoped package that doesn't have them yet
+  </Card>
+</CardGroup>

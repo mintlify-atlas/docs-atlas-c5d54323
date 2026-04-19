@@ -1,0 +1,92 @@
+---
+title: "Contributing to DefinitelyTyped"
+description: "Learn what contributions are welcome in DefinitelyTyped, how the automated PR review process works, and community expectations before opening a pull request."
+---
+
+DefinitelyTyped thrives because of contributions from TypeScript developers worldwide. This guide explains what kinds of contributions are welcome, how the review process works, and community expectations you should know before opening a pull request.
+
+## What contributions are welcome
+
+DefinitelyTyped accepts:
+
+- **New type definitions** for npm packages that don't yet have `@types` coverage and that you personally use
+- **Improvements to existing definitions** — adding missing APIs, fixing incorrect types, or updating to a new library version
+- **Test additions** — adding test cases that cover API usage not yet exercised in the test file
+
+<Warning>
+The goal of this repository is **not** to include `.d.ts` files for every package on npm — only those that are actually in use by real TypeScript authors. Your motivation for a new definition PR must be that you intend to use it in your own project. PRs that appear unmotivated will be closed.
+</Warning>
+
+## Before you contribute
+
+Before opening a PR, test your types locally:
+
+1. Create a `.d.ts` file in your project (e.g., `typename.d.ts`) and fill out its exports
+2. Use those types in your actual code to validate them
+3. When satisfied, bring those changes to DefinitelyTyped
+
+<Tip>
+If you are a **library author** and your package is written in TypeScript, bundle declaration files directly in your package instead of contributing to DefinitelyTyped. Use `--declaration` in your `tsconfig.json` to generate them automatically.
+</Tip>
+
+## Contribution workflow
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    Fork the [DefinitelyTyped repository](https://github.com/DefinitelyTyped/DefinitelyTyped) on GitHub. Use a blobless clone to save time:
+    ```bash
+    git clone --filter=blob:none https://github.com/YOUR-USERNAME/DefinitelyTyped
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    Install the workspace root (you don't need to install all packages):
+    ```bash
+    pnpm install --filter .
+    ```
+  </Step>
+  <Step title="Make your changes">
+    Edit or create files in the `types/<package-name>/` directory. See [Create a package](/contributing/create-package) or [Edit a package](/contributing/edit-package) for details.
+  </Step>
+  <Step title="Run tests">
+    ```bash
+    pnpm test <package-name>
+    ```
+  </Step>
+  <Step title="Open a pull request">
+    Push your branch and open a PR against `master`. The dt-mergebot will handle the review lifecycle automatically.
+  </Step>
+</Steps>
+
+## The review process
+
+DefinitelyTyped uses an automated bot ([dt-mergebot](https://github.com/microsoft/DefinitelyTyped-tools/tree/main/packages/mergebot)) to manage the PR lifecycle. The bot:
+
+- Automatically notifies definition owners when their package is modified
+- Moves PRs through review states based on approvals and CI results
+- Can merge PRs automatically once all requirements are met
+
+Most PRs are merged within a week. PRs approved by the package's listed owners are typically merged faster.
+
+## Popular packages
+
+Changes to very popular packages (such as Node.js, Express, or Jest) require:
+
+- Sign-off from a DT maintainer
+- Enthusiastic support from the module owners
+
+The bar is intentionally higher because changes to these packages can affect millions of TypeScript projects.
+
+<CardGroup cols={2}>
+  <Card title="Create a package" icon="plus" href="/contributing/create-package">
+    Add type definitions for a new library
+  </Card>
+  <Card title="Edit a package" icon="pen" href="/contributing/edit-package">
+    Improve or fix existing type definitions
+  </Card>
+  <Card title="Testing" icon="flask" href="/contributing/testing">
+    Run and write tests for type definitions
+  </Card>
+  <Card title="Pull request guide" icon="code-pull-request" href="/contributing/pull-request">
+    Open and navigate the PR review process
+  </Card>
+</CardGroup>

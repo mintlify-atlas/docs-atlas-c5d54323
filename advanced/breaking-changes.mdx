@@ -1,0 +1,74 @@
+---
+title: "Handling breaking changes in type definitions"
+description: "Understand how DefinitelyTyped handles breaking type changes, when to create versioned subfolders, and the process for updating popular packages."
+---
+
+Type definition changes that remove or alter existing APIs are considered breaking changes. Because `@types` packages are used by many projects, breaking changes require careful handling.
+
+## What counts as a breaking change
+
+A breaking change in a type definition is anything that could cause existing TypeScript code to stop compiling:
+
+- Removing an exported function, class, or interface
+- Changing a parameter type to be more restrictive
+- Adding a required parameter to an existing function
+- Removing a property from an interface
+- Changing a return type in an incompatible way
+
+Addition-only changes (new overloads, new optional properties, new exports) are generally safe.
+
+## Before making a breaking change
+
+Consider these questions:
+
+1. **Is this change paired with a library major version bump?** Breaking type changes should ideally track breaking changes in the underlying library.
+2. **How popular is this package?** More popular packages require more scrutiny and maintainer sign-off.
+3. **Can the change be made non-breaking?** Adding an overload is often safer than changing an existing signature.
+
+## Creating a versioned subfolder
+
+When a library releases a new major version, preserve the old types in a versioned subfolder so users of the old library version continue to get correct types:
+
+```
+types/my-package/
+  index.d.ts        ← v3 types (latest)
+  package.json      ← version: "3.0.9999"
+  v2/
+    index.d.ts      ← v2 types (preserved)
+    package.json    ← version: "2.1.9999"
+    tsconfig.json
+    .npmignore
+```
+
+The root `.npmignore` for the latest version must exclude the old version directories:
+
+```ignore .npmignore
+*
+!**/*.d.ts
+!**/*.d.cts
+!**/*.d.mts
+!**/*.d.*.ts
+/v2/
+```
+
+## Popular packages
+
+Changes to high-traffic packages like Node.js, Express, React, and Jest have tighter requirements:
+
+- A DT maintainer must sign off on the change
+- Module owners should enthusiastically support it
+- The PR should have a narrow focus — large sweeping changes are harder to review and merge
+
+If your PR to a popular package stalls, try reducing its scope.
+
+## Patch-version breaking changes
+
+When `@types` packages closely track library versions, all updates (including breaking ones) are published as patch revisions. DT maintainers weigh popularity, upside of the change, and whether it can be deferred until a major version bump before approving.
+
+## Communicating breaking changes in PRs
+
+When your PR contains a breaking change, say so explicitly in the PR description. Include:
+
+- What changed and why
+- Which version of the library this aligns with
+- Whether a versioned subfolder is needed for old-version users

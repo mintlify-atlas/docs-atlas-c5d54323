@@ -1,28 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "DefinitelyTyped",
+  "projectType": "general",
+  "projectName": "DefinitelyTyped",
+  "projectDescription": "The community repository for high-quality TypeScript type definitions, publishing thousands of @types/* packages to npm.",
   "theme": "palm",
-  "colors": {
-    "primary": "#848c8e",
-    "light": "#11161e",
-    "dark": "#cfd0d2"
-  },
-  "favicon": "https://media.brand.dev/2b01fe20-c04b-4a1d-a2f9-1d2789c50a7a.jpg",
-  "logo": {
-    "light": "https://media.brand.dev/5ffd6ce4-2434-4b4b-920a-f8cacac8b48b.svg",
-    "dark": "https://media.brand.dev/5ffd6ce4-2434-4b4b-920a-f8cacac8b48b.svg"
-  },
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    }
-  },
+  "primaryColor": "#848c8e",
+  "lightColor": "#11161e",
+  "darkColor": "#cfd0d2",
   "navigation": {
     "tabs": [
       {
@@ -95,5 +78,26 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "8000+ TypeScript type definition packages published as @types/* on npm",
+    "Community-maintained pnpm monorepo with automated CI/CD via dtslint",
+    "Automated PR lifecycle managed by dt-mergebot bot",
+    "Support for multiple library versions via versioned subdirectories (e.g., /v2/)",
+    "Strict TypeScript compiler checks: noImplicitAny, strictNullChecks, strictFunctionTypes",
+    "dprint-based automatic code formatting",
+    "Module format validation via @arethetypeswrong/cli (attw)",
+    "Definition ownership system via package.json owners field"
+  ],
+  "publicApiSurface": [
+    "@types/<package-name> — npm install --save-dev @types/node",
+    "@types/<scope>__<package> — scoped package types (e.g., @types/babel__core)",
+    "index.d.ts — main type declarations for each package",
+    "package.json — metadata including name, version, owners, dependencies",
+    "tsconfig.json — per-package TypeScript configuration",
+    ".npmignore — controls which declaration files are published",
+    "pnpm test <package> — run dtslint checks for a specific package",
+    "npx dts-gen --dt --name <package> --template module — scaffold a new package",
+    "pnpm run not-needed <name> <version> — mark a package as no longer needed"
+  ]
 }

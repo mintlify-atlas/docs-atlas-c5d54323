@@ -1,0 +1,127 @@
+---
+title: "Testing type definitions in DefinitelyTyped"
+description: "Learn how to run dtslint, write test assertions with $ExpectType and @ts-expect-error, and use attw for module format validation in DefinitelyTyped packages."
+---
+
+Every type definition package in DefinitelyTyped must include tests that validate the declared types against real usage patterns. This guide covers how to write and run those tests.
+
+## Running tests
+
+Test a single package using the `pnpm test` script from the repository root:
+
+```bash
+pnpm test <package-name>
+```
+
+For example, to test the `lodash` package:
+
+```bash
+pnpm test lodash
+```
+
+This runs [dtslint](https://github.com/microsoft/DefinitelyTyped-tools/tree/master/packages/dtslint) against your `.d.ts` files and test files.
+
+To test all packages (useful before merging):
+
+```bash
+pnpm run test-all
+```
+
+## Writing test files
+
+The test file (`<package>-tests.ts`) contains sample code that exercises the types. This code is type-checked by the TypeScript compiler but never actually run.
+
+### Asserting correct types with $ExpectType
+
+Use the `$ExpectType` comment to assert that an expression has a specific type:
+
+```typescript
+// $ExpectType void
+f(1);
+
+// $ExpectType string
+const name = getName();
+
+// $ExpectType Promise<string[]>
+const results = fetchAll();
+```
+
+### Asserting type errors with @ts-expect-error
+
+Use `@ts-expect-error` to assert that a line produces a compile error. This verifies that your types correctly reject invalid usage:
+
+```typescript
+// @ts-expect-error — wrong argument type
+f("one");
+
+// @ts-expect-error — missing required argument
+fetchData();
+```
+
+<Warning>
+If a `@ts-expect-error` line does NOT produce an error, TypeScript will itself report an error. This ensures you don't accidentally suppress valid code.
+</Warning>
+
+### Test file example
+
+```typescript my-library-tests.ts
+import { createClient, type ClientOptions } from "my-library";
+
+// Basic usage
+// $ExpectType Client
+const client = createClient("https://api.example.com");
+
+// With options
+const options: ClientOptions = {
+  timeout: 5000,
+  retries: 3,
+};
+const clientWithOptions = createClient("https://api.example.com", options);
+
+// @ts-expect-error — URL is required
+createClient();
+
+// @ts-expect-error — URL must be a string
+createClient(42);
+```
+
+## Global vs module test files
+
+For packages that can be used both globally (via script tag) and as a module (via `import`), create two test files:
+
+| File | Purpose |
+|------|---------|
+| `my-package-global.test.ts` | Tests the global usage (no import statement) |
+| `my-package-module.test.ts` | Tests the module usage (with `import`) |
+
+Add both to the `files` array in `tsconfig.json`.
+
+## Module format validation (attw)
+
+dtslint also runs [@arethetypeswrong/cli](https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/packages/cli) (`attw`) checks to validate that the package's module format matches the underlying npm package.
+
+`attw` checks only run when a compatible implementation package can be found on npm. Packages marked `"nonNpm": true` are skipped.
+
+If your package fails `attw` checks:
+
+1. Review the linked documentation in the check output
+2. Ensure `type` and `exports` fields in your `package.json` match the implementation package
+3. If the fix is complex, you can temporarily add the package to `failingPackages` in `attw.json` while working on it
+
+## Formatting
+
+DefinitelyTyped uses [dprint](https://dprint.dev) for automatic code formatting. Format your files before committing:
+
+```bash
+pnpm dprint fmt -- 'types/my-package/**/*.ts'
+```
+
+You can set up automatic formatting on commit:
+
+```bash
+pnpm run setup-hooks
+```
+
+<Note>
+Pull requests do not require correct formatting to be merged. Any unformatted code is automatically reformatted after merging.
+</Note>

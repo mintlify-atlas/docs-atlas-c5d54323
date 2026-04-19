@@ -1,0 +1,145 @@
+---
+title: "package.json reference for DefinitelyTyped packages"
+description: "Reference for the package.json format in DefinitelyTyped packages: required fields, versioning scheme, owners array, dependencies, and peer dependencies."
+---
+
+Every DefinitelyTyped package requires a `package.json` file that provides metadata used by the publishing toolchain and the PR review bot.
+
+## Required format
+
+```json package.json
+{
+    "private": true,
+    "name": "@types/my-package",
+    "version": "1.2.9999",
+    "projects": [
+        "https://github.com/example/my-library"
+    ],
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "devDependencies": {
+        "@types/my-package": "workspace:."
+    },
+    "owners": [
+        {
+            "name": "Your Name",
+            "githubUsername": "yourusername"
+        }
+    ]
+}
+```
+
+## Fields reference
+
+### name
+
+The `name` must follow the pattern `@types/<package-name>`. For scoped packages (`@scope/package`), use double underscore: `@types/scope__package`.
+
+### version
+
+The version must be `major.minor.9999`. Only the `major.minor` part is meaningful — it should match the version of the library whose types you are declaring.
+
+```json
+"version": "20.8.9999"
+```
+
+The `.9999` suffix ensures local `@types` packages are always treated as newest during development. The actual published patch version is managed by the publishing toolchain.
+
+### projects
+
+An array of URLs pointing to the upstream library's homepage, repository, or documentation. Used for reference by contributors.
+
+### dependencies
+
+List all `@types` packages that the type definitions depend on. Only `@types` packages and a small set of [approved non-@types packages](https://github.com/microsoft/DefinitelyTyped-tools/blob/master/packages/definitions-parser/allowedPackageJsonDependencies.txt) are allowed.
+
+```json
+"dependencies": {
+    "@types/express": "*",
+    "@types/node": "*"
+}
+```
+
+### devDependencies
+
+Always include a self-referencing devDependency pointing to the workspace:
+
+```json
+"devDependencies": {
+    "@types/my-package": "workspace:."
+}
+```
+
+### owners
+
+An array of people who want to be notified about PRs to this package. Owners receive GitHub @-mentions when someone opens a PR. Their reviews carry higher weight in the bot's decision.
+
+```json
+"owners": [
+    {
+        "name": "Alice Example",
+        "githubUsername": "aliceexample"
+    },
+    {
+        "name": "Example Corp",
+        "url": "https://example.org"
+    }
+]
+```
+
+<Note>
+The owners list is for PR notifications and review weight only — it is not a contributor credit list. The list is synced to `.github/CODEOWNERS` weekly. Do not modify `CODEOWNERS` directly.
+</Note>
+
+## Module type
+
+If the upstream library uses ESM (`"type": "module"` in its `package.json` or has an `exports` field), add the same field to your DefinitelyTyped `package.json`:
+
+```json
+{
+    "type": "module"
+}
+```
+
+## Peer dependencies
+
+Peer dependencies can be used when the upstream library itself has a peer dependency. For example, a React component library may declare:
+
+```json
+"peerDependencies": {
+    "@types/react": "*"
+}
+```
+
+Use peer dependencies sparingly — they require maintainer approval and can cause issues with different package managers.
+
+## Versioned packages
+
+When maintaining types for multiple major versions of a library, the older version lives in a subdirectory (e.g., `/v2/`). That subdirectory has its own `package.json`:
+
+```json types/history/v2/package.json
+{
+    "private": true,
+    "name": "@types/history",
+    "version": "2.4.9999"
+}
+```
+
+Other packages can depend on this specific version:
+
+```json
+"dependencies": {
+    "@types/history": "^2"
+}
+```
+
+## nonNpm packages
+
+For type definitions that don't correspond to an npm package (such as environment types or spec drafts), set:
+
+```json
+"nonNpm": true
+```
+
+This skips attw checks that compare against an npm implementation package.

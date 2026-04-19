@@ -1,0 +1,73 @@
+---
+title: "Tools for DefinitelyTyped maintainers"
+description: "Overview of the tools maintainers use to review PRs, deploy type definitions, validate packages, and stay on top of the DefinitelyTyped on-call queue."
+---
+
+DefinitelyTyped maintainers use several specialized tools to manage the high volume of PRs and automate the publishing pipeline.
+
+## PR review tools
+
+### focus-dt
+
+[`focus-dt`](https://github.com/DefinitelyTyped/focus-dt) is a tool that controls Chrome to automatically load the next PR to review, helping you work through the queue without losing your place.
+
+```bash
+npx focus-dt
+```
+
+Use it during on-call shifts to work through PRs efficiently.
+
+### Projects board
+
+The [Projects board](https://github.com/orgs/DefinitelyTyped/projects/1) provides a kanban view of all open PRs organized by their current state in the review lifecycle. Work through columns from left to right, oldest PRs first.
+
+## Validation tools
+
+### dtslint
+
+[`dtslint`](https://github.com/microsoft/DefinitelyTyped-tools/tree/master/packages/dtslint) is the CLI tool used to validate type definition packages. It:
+
+- Runs the TypeScript compiler against `.d.ts` files and test files
+- Validates `$ExpectType` and `@ts-expect-error` assertions
+- Runs `attw` module format checks
+- Enforces lint rules via `@definitelytyped/eslint-plugin`
+
+Run it locally for a specific package:
+
+```bash
+pnpm test <package-name>
+```
+
+### @arethetypeswrong/cli (attw)
+
+[`attw`](https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/packages/cli) validates that the module format of a `@types` package matches its corresponding npm implementation package. It checks for mismatches in `exports` fields, `type`, and file extensions.
+
+<Note>
+`attw` checks are included in `dtslint` runs. If a package is listed in `failingPackages` in `attw.json`, failed checks won't block the `dtslint` run but are still reported. Remove a package from `failingPackages` once it's fixed.
+</Note>
+
+### dts-gen
+
+[`dts-gen`](https://github.com/microsoft/DefinitelyTyped-tools/tree/main/packages/dts-gen) scaffolds new DefinitelyTyped package directories:
+
+```bash
+npx dts-gen --dt --name <package-name> --template module
+```
+
+## Publishing tools
+
+### DefinitelyTyped-tools publisher
+
+The [types-publisher](https://github.com/microsoft/DefinitelyTyped-tools/tree/master/packages/publisher) monitors merged PRs and publishes updated `@types` packages to npm. It runs on Azure CI and typically publishes within an hour of a merge.
+
+<Tip>
+If an `@types` package hasn't updated more than an hour after a merge, mention the PR number in the [Definitely Typed channel on the TypeScript Community Discord](https://discord.gg/typescript) and the current maintainer will investigate.
+</Tip>
+
+### Azure CI
+
+Most of the validation and publishing pipeline runs on [Azure Pipelines](https://dev.azure.com/definitelytyped/DefinitelyTyped/_build). Build logs are available there when diagnosing CI failures.
+
+## Infrastructure status
+
+Current infrastructure status is tracked in [GitHub issue #44317](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/44317). For urgent issues, reach out in the [Definitely Typed channel on the TypeScript Community Discord](https://discord.gg/typescript).

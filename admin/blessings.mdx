@@ -1,0 +1,52 @@
+---
+title: "Using blessings to advance pull requests"
+description: "Use review-blessings and merge-blessings in DefinitelyTyped to advance PRs through the bot lifecycle without providing a full domain-expert code review."
+---
+
+DefinitelyTyped maintainers can advance PRs through the review lifecycle using "blessings" — implicit operations performed via the project board, without providing a formal GitHub review. This avoids the situation where a maintainer review might be misinterpreted as a domain-expert sign-off.
+
+## Review-blessing
+
+A **review-blessing** satisfies the maintainer review requirement without providing a full code review approval.
+
+**How to do it:** Move the PR to the `Waiting for Code Reviews` column in the [Projects board](https://github.com/orgs/DefinitelyTyped/projects/1).
+
+**When to use it:**
+- The maintainer review requirement was triggered by a technical flag (e.g., missing tests, suspicious config edits), but upon inspection the change is fine
+- The change is small or doesn't modify types
+- The config edit is acceptable
+
+<Note>
+A review-blessing only dismisses the maintainer review requirement. The PR still continues through the normal flow and waits for owner approvals as needed.
+</Note>
+
+## Merge-blessing
+
+A **merge-blessing** moves the PR to `Waiting for Author to Merge`, making the bot offer the author the option to self-merge.
+
+**How to do it:** Move the PR to the `Waiting for Author to Merge` column.
+
+**When to use it:**
+- The author is unsure whether to merge and is soliciting review from owners or library authors
+- You want to defer the merge decision to the author rather than starting an "are you ready?" discussion
+
+<Note>
+A merge-blessing makes a PR self-mergeable, but the PR still waits until it is unconflicted and CI is green before the author can actually merge.
+</Note>
+
+## Undoing a blessing
+
+Move the PR to any other column to undo either type of blessing. Both blessings are also dismissed if the PR author pushes new commits.
+
+## When blessings are dismissed
+
+Both blessings are automatically dismissed when:
+- The PR author pushes new commits
+- A maintainer manually moves the PR to another column
+
+## Summary
+
+| Blessing | How | Effect |
+|----------|-----|--------|
+| Review-blessing | Move to "Waiting for Code Reviews" | Satisfies maintainer review requirement; PR continues normally |
+| Merge-blessing | Move to "Waiting for Author to Merge" | Author can self-merge when CI is green and PR is unconflicted |

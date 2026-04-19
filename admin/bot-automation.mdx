@@ -1,0 +1,63 @@
+---
+title: "dt-mergebot: automated PR lifecycle management"
+description: "How dt-mergebot automates pull request triage, labeling, owner notifications, and merging in DefinitelyTyped, reducing manual maintainer work."
+---
+
+[dt-mergebot](https://github.com/DefinitelyTyped/dt-mergebot/) is the automation bot that manages the PR lifecycle in DefinitelyTyped. It handles labeling, owner notifications, project board placement, and merge decisions — dramatically reducing the manual effort required from maintainers.
+
+## What the bot does
+
+The bot monitors every open PR and:
+
+1. **Notifies definition owners** — when a PR touches a package, the bot @-mentions the owners listed in that package's `package.json`
+2. **Labels PRs** — applies labels like `Needs Maintainer Review`, `Needs Author Action`, `Popular package`, etc.
+3. **Updates the project board** — moves PRs between columns as their state changes
+4. **Offers self-merge** — when all requirements are met, the bot comments on the PR telling the author they may merge
+
+## Owner notifications
+
+Definition owners are listed in the `owners` array of each package's `package.json`. When a PR modifies a package, the bot automatically notifies those owners. Owner approvals carry higher weight than anonymous approvals in the bot's merge decision.
+
+```json package.json
+{
+    "owners": [
+        { "name": "Alice", "githubUsername": "alice" },
+        { "name": "Bob", "githubUsername": "bob" }
+    ]
+}
+```
+
+<Warning>
+The owners list is synced to `.github/CODEOWNERS` weekly — do not modify `CODEOWNERS` directly. Always modify the `owners` array in `package.json`.
+</Warning>
+
+## Merge requirements
+
+The bot tracks several requirements before offering or performing a merge:
+
+| Requirement | Details |
+|-------------|---------|
+| CI green | All dtslint, attw, and formatting checks must pass |
+| Owner approval | At least one owner approval (if owners exist) |
+| No conflicts | PR must be up to date with `master` |
+| Maintainer sign-off | Required for popular packages or flagged PRs |
+
+## Popular package handling
+
+PRs to packages with very high download counts receive a `Popular package` label and require maintainer sign-off in addition to owner approvals. The bot tracks package popularity automatically.
+
+<Note>
+For very popular modules like Node.js, Express, or Jest — which have millions of downloads per week — both a DT maintainer sign-off and enthusiastic support from module owners are required. PRs without a champion can go stale.
+</Note>
+
+## Self-service merging
+
+When all requirements are met, the bot posts a comment like:
+
+> "All requirements are fulfilled. Author can self-merge this PR."
+
+The PR author (or any owner) can then merge without waiting for a maintainer.
+
+## Bot source code
+
+The full source for dt-mergebot is available at [DefinitelyTyped/dt-mergebot](https://github.com/DefinitelyTyped/dt-mergebot/). For questions about bot behavior, check the existing issues or ask in the [TypeScript Community Discord](https://discord.gg/typescript).

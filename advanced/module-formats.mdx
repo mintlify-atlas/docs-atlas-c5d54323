@@ -1,0 +1,123 @@
+---
+title: "Module formats and exports in DefinitelyTyped packages"
+description: "Learn how to correctly type CommonJS, ESM, and dual-format npm packages in DefinitelyTyped, including exports fields, export = syntax, and attw validation."
+---
+
+Modern npm packages can be published in different module formats: CommonJS (CJS), ES modules (ESM), or both. DefinitelyTyped packages must accurately reflect the module format of the implementation package.
+
+## Detecting the module format
+
+Check the implementation package's `package.json`:
+
+- `"type": "module"` → ESM package
+- `"main"` only, no `"type"` → CommonJS package
+- `"exports"` field → may be CJS, ESM, or dual-format
+
+## CommonJS packages
+
+When a package uses `module.exports = ...`, use `export =` in the declaration file:
+
+```typescript index.d.ts
+declare function doSomething(options: doSomething.Options): void;
+
+declare namespace doSomething {
+    interface Options {
+        verbose: boolean;
+    }
+}
+
+export = doSomething;
+```
+
+<Warning>
+Do not use `export default` for CommonJS packages. Use `export =`. If you need to export types alongside the main export, put them in a namespace with the same name.
+</Warning>
+
+If the CommonJS export is an object of named properties, you can use named exports instead:
+
+```typescript
+export function parseUrl(url: string): ParsedUrl;
+export function formatUrl(parsed: ParsedUrl): string;
+export interface ParsedUrl {
+    host: string;
+    path: string;
+}
+```
+
+## ESM packages
+
+For pure ESM packages (`"type": "module"`), use standard ES module syntax and add `"type": "module"` to the DefinitelyTyped `package.json`:
+
+```typescript index.d.ts
+export interface Config {
+    debug: boolean;
+}
+
+export function init(config: Config): Promise<void>;
+export function shutdown(): Promise<void>;
+```
+
+```json package.json
+{
+    "type": "module"
+}
+```
+
+## Dual-format packages (CJS + ESM)
+
+When an implementation package has an `exports` field, mirror it in the DefinitelyTyped `package.json`. Each JavaScript file needs a corresponding declaration file with a matching extension:
+
+Implementation `package.json`:
+```json
+{
+    "exports": {
+        ".": {
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.cjs"
+        },
+        "./utils": {
+            "import": "./dist/esm/utils.js",
+            "require": "./dist/cjs/utils.cjs"
+        }
+    }
+}
+```
+
+DefinitelyTyped `package.json`:
+```json
+{
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./index.d.ts",
+            "require": "./index.d.cts"
+        },
+        "./utils": {
+            "import": "./utils.d.ts",
+            "require": "./utils.d.cts"
+        }
+    }
+}
+```
+
+Note: `.js` → `.d.ts`, `.cjs` → `.d.cts`, `.mjs` → `.d.mts`.
+
+## Module format validation with attw
+
+DefinitelyTyped uses [@arethetypeswrong/cli](https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/packages/cli) (`attw`) to validate that the `@types` package correctly matches the module format of the implementation. These checks run as part of `pnpm test`.
+
+If `attw` reports errors, the check output links to documentation explaining each issue. Packages with known failures can be listed in `attw.json` temporarily while being fixed.
+
+## Importing default vs named exports
+
+For CommonJS packages, avoid `export default` and instead use `export =`. To import such a package:
+
+```typescript
+// Correct for CJS package using export =
+import myLib = require("my-lib");
+
+// Wrong — only valid with esModuleInterop enabled
+import myLib from "my-lib";
+```
+
+If you want to support both styles, check whether `esModuleInterop` is appropriate — but note that DefinitelyTyped types must work **without** `esModuleInterop`.

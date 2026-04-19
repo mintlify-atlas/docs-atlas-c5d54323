@@ -1,0 +1,71 @@
+---
+title: "Opening a pull request to DefinitelyTyped"
+description: "Learn how to open, track, and get your DefinitelyTyped pull request merged, including the automated bot lifecycle and review requirements."
+---
+
+Once you've written and tested your type definitions, open a pull request to the DefinitelyTyped repository. This guide explains the PR process, the automated bot, and how to navigate the review lifecycle.
+
+## Open a pull request
+
+1. Push your branch to your fork on GitHub
+2. Open a PR against the `master` branch of `DefinitelyTyped/DefinitelyTyped`
+3. Describe what you changed and, for new packages, why you need these types
+
+## The automated PR lifecycle
+
+DefinitelyTyped uses [dt-mergebot](https://github.com/DefinitelyTyped/dt-mergebot/) to automate most of the PR lifecycle. The bot:
+
+- Assigns reviewers and notifies definition owners
+- Adds labels reflecting the PR's current state
+- Moves PRs through the project board automatically
+- Merges PRs when all requirements are met
+
+The lifecycle looks like this:
+
+```
+PR opened
+  → CI runs (dtslint, attw, formatting checks)
+  → Owners notified
+  → Reviews collected
+  → Maintainer review (if required)
+  → Bot offers self-merge or merges automatically
+```
+
+## Project board columns
+
+| Column | Meaning |
+|--------|---------|
+| Needs Maintainer Review | Waiting for a DT maintainer to review |
+| Needs Maintainer Action | A maintainer must take an explicit action |
+| Waiting for Code Reviews | Awaiting approval from definition owners |
+| Waiting for Author to Merge | Approved — author can self-merge |
+| Needs Author Action | Author must respond to feedback |
+| Recently Merged | Merged successfully |
+
+## Review requirements
+
+- **Most PRs** are merged within a week after passing CI and receiving owner approval
+- **PRs that only change types** (with corresponding test changes) are merged faster
+- **New definition PRs** require more review from maintainers
+- **Popular package PRs** (Node.js, React, Express, etc.) require maintainer sign-off and enthusiastic owner support
+
+## When your PR is merged
+
+After merging, the `@types` npm package is updated within about an hour. If it hasn't updated after an hour, mention the PR number in the [Definitely Typed Discord channel](https://discord.gg/typescript).
+
+## Common reasons PRs are delayed
+
+<AccordionGroup>
+  <Accordion title="No tests or incomplete test coverage">
+    Ensure your PR includes test assertions using `$ExpectType` and `@ts-expect-error` for the APIs you're adding or changing.
+  </Accordion>
+  <Accordion title="Failing CI">
+    Run `pnpm test <package>` locally and fix all dtslint errors before pushing.
+  </Accordion>
+  <Accordion title="Missing owner sign-off">
+    If the package has owners listed in `package.json`, they need to approve the PR. The bot notifies them automatically.
+  </Accordion>
+  <Accordion title="Breaking changes to a popular package">
+    Breaking changes to widely-used packages require more scrutiny. Consider whether the change can be made non-breaking or whether it should wait for a major version bump.
+  </Accordion>
+</AccordionGroup>

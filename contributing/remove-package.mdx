@@ -1,0 +1,59 @@
+---
+title: "Remove a package from DefinitelyTyped"
+description: "Learn when and how to remove a type definition package from DefinitelyTyped when a library starts bundling its own TypeScript types."
+---
+
+When a JavaScript library starts shipping its own TypeScript types, the corresponding DefinitelyTyped package should be removed to avoid confusion and conflicts for users.
+
+## When to remove a package
+
+Remove a DefinitelyTyped package when:
+
+- The upstream library now bundles its own types (has a `"types"` or `"typings"` field in `package.json`)
+- The bundled types cover the same or greater API surface as the DefinitelyTyped package
+
+<Note>
+If the package was never on DefinitelyTyped, it does not need to be added to `notNeededPackages.json`.
+</Note>
+
+## How to remove a package
+
+Use the `not-needed` script from the root of the repository:
+
+```bash
+pnpm run not-needed <typingsPackageName> <asOfVersion> [<libraryName>]
+```
+
+**Parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `typingsPackageName` | The directory name under `types/` to remove |
+| `asOfVersion` | The library version at which types became bundled. Must be higher than any currently published `@types` version |
+| `libraryName` | The npm package name (only needed if different from `typingsPackageName`) |
+
+**Example:**
+
+```bash
+pnpm run not-needed my-package 3.0.0
+```
+
+This removes the `types/my-package/` directory and publishes a stub `@types/my-package` package pointing users to the real package.
+
+## What the script does
+
+The `not-needed` script:
+
+1. Deletes the `types/<package>/` directory
+2. Adds an entry to `notNeededPackages.json` marking it as deprecated
+3. A stub package is later published to npm that informs users to remove `@types/<package>` and use the library's bundled types instead
+
+## After removal
+
+Users who have `@types/<package>` installed will see a deprecation notice when they run `npm install`. They can safely remove the `@types` package:
+
+```bash
+npm uninstall @types/my-package
+```
+
+The library's bundled types will then be used automatically.

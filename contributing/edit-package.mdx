@@ -1,0 +1,84 @@
+---
+title: "Edit an existing type definition package"
+description: "Learn how to modify, improve, or update existing @types packages in DefinitelyTyped, including how to handle breaking changes and notify package owners."
+---
+
+Editing an existing type definition package is the most common contribution to DefinitelyTyped. This guide covers making changes to existing definitions, updating tests, and handling different kinds of edits.
+
+## Find the package
+
+All type definition packages live under the `types/` directory in the repository. For example, to edit types for `lodash`, modify files in `types/lodash/`.
+
+```
+types/
+  lodash/
+    index.d.ts       ← edit types here
+    lodash-tests.ts  ← edit tests here
+    tsconfig.json
+    package.json
+    .npmignore
+```
+
+## Make changes
+
+Edit `index.d.ts` to add or fix type declarations. Common edits include:
+
+- Adding missing function overloads or properties
+- Correcting incorrect parameter or return types
+- Adding JSDoc comments for better IDE support
+- Updating types to reflect a new library API
+
+<Tip>
+You can edit types directly in `node_modules/@types/foo/index.d.ts` in your own project to validate your changes before bringing them to DefinitelyTyped.
+</Tip>
+
+## Update tests
+
+Every change to `.d.ts` files should include a corresponding change to the test file (`<package>-tests.ts`) demonstrating the API being used:
+
+```diff my-package-tests.ts
+ import {twoslash} from "./"
+
+ // $ExpectType string
+ const result = twoslash("//")
++
++// Handle options param
++const resultWithOptions = twoslash("//", { version: "3.7" })
++// When the param is incorrect
++// @ts-expect-error
++const resultWithOptions2 = twoslash("//", {})
+```
+
+## Handle breaking changes
+
+If your edit introduces a breaking change (removes or changes an existing API), you must:
+
+1. **Not forget to update the version** — bump `major.minor` in `package.json` to align with the library version you are targeting
+2. **Consider a versioned subfolder** — if some users will stay on the old version, create a `/v2/` subfolder with the old types (see [Versioning](/advanced/versioning))
+
+<Warning>
+Breaking type changes affect everyone using that `@types` package. For popular packages, discuss the change in the PR before making it.
+</Warning>
+
+## Notify owners
+
+When you open a PR to edit an existing package, `dt-mergebot` automatically @-mentions the package's owners (listed in `package.json`). If the bot doesn't do this, you can mention them yourself in your PR comment.
+
+## Adding yourself as a definition owner
+
+If you want to be notified about future changes to a package, add yourself to the `owners` array in the package's `package.json`:
+
+```json package.json
+{
+  "owners": [
+    {
+      "name": "Your Name",
+      "githubUsername": "yourusername"
+    }
+  ]
+}
+```
+
+<Note>
+The owners list is for PR review notifications only, not contribution credit. Being an owner means you are responsible for reviewing PRs to that package.
+</Note>

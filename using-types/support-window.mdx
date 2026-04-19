@@ -1,0 +1,66 @@
+---
+title: "TypeScript version support window for @types packages"
+description: "DefinitelyTyped tests @types packages against TypeScript versions under two years old. Use npm dist-tags to get types for older TypeScript compiler releases."
+---
+
+DefinitelyTyped only tests type definition packages against versions of TypeScript that are **less than two years old**. This policy ensures that contributors can use modern TypeScript features without being blocked by ancient compiler behavior.
+
+## Current support policy
+
+Type definitions in the repository are tested against all TypeScript versions within the two-year rolling window. When a TypeScript version ages out of the window, new type definitions are no longer required to support it, though many packages will continue to work.
+
+<Note>
+The exact set of currently supported TypeScript versions changes over time as new TypeScript releases come out and old ones age past the two-year mark. Check the [CI configuration](https://github.com/DefinitelyTyped/DefinitelyTyped/actions) for the current set.
+</Note>
+
+## Using older TypeScript versions
+
+If your project uses an older version of TypeScript outside the two-year window, `@types` packages provide **dist-tags** for older TypeScript versions. You can see available tags with:
+
+```bash
+npm dist-tags @types/react
+```
+
+This shows output like:
+
+```
+latest: 18.3.1
+ts2.0: 15.0.1
+ts2.5: 16.0.36
+ts2.6: 16.4.7
+ts2.7: 16.4.7
+```
+
+Install a specific TypeScript-version-compatible release using the tag:
+
+```bash
+npm install --save-dev @types/react@ts2.7
+```
+
+## Minimum TypeScript version for a package
+
+Some type definitions use TypeScript features that are only available in newer compiler versions. These packages declare a minimum version in their `package.json`:
+
+```json package.json
+{
+  "minimumTypeScriptVersion": "4.5"
+}
+```
+
+If you install such a package with an older TypeScript version, you may encounter compiler errors. In that case, use the appropriate dist-tag to install an older compatible version.
+
+## Supporting multiple TypeScript versions in a definition
+
+If a definition needs to provide different types for different TypeScript versions (for example, using conditional types only available in TypeScript 3.7+), the `typesVersions` field in `package.json` enables this:
+
+```json package.json
+{
+  "private": true,
+  "types": "index",
+  "typesVersions": {
+    "<=3.6": { "*": ["ts3.6/*"] }
+  }
+}
+```
+
+This causes TypeScript 3.6 and below to use files from the `ts3.6/` subdirectory, while TypeScript 3.7 and above use the root `index.d.ts`. See the [TypeScript 3.1 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-1.html#version-selection-with-typesversions) for full details on `typesVersions`.

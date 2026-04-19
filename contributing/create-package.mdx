@@ -1,0 +1,159 @@
+---
+title: "Create a new type definition package"
+description: "Step-by-step guide to adding type definitions for a new npm package to DefinitelyTyped, including scaffolding, file structure, and naming conventions."
+---
+
+Adding a new type definition package to DefinitelyTyped means creating a directory under `types/` with declaration files, a test file, and configuration files. This guide walks through each step.
+
+## Prerequisites
+
+Before creating a new package, confirm:
+
+1. The package exists on npm and you personally use it
+2. The package does not already bundle TypeScript types (check its `package.json` for a `"types"` or `"typings"` field)
+3. There is no existing `@types/<package-name>` package on npm
+4. You intend to maintain or use these types in your own project
+
+<Warning>
+Do not create definitions for packages you don't use. "Make-work" PRs that don't appear motivated by concrete usage will be closed.
+</Warning>
+
+## Scaffold the package
+
+Use the `dts-gen` tool to create a new package directory with the correct file structure:
+
+```bash
+npx dts-gen --dt --name <my-package> --template module
+```
+
+This creates the `types/<my-package>/` directory with starter files.
+
+## Required file structure
+
+Every package must include these files:
+
+| File | Purpose |
+|------|---------|
+| `index.d.ts` | The type declarations for the package |
+| `<my-package>-tests.ts` | Sample code that validates the types (type-checked but not run) |
+| `tsconfig.json` | Allows running `tsc` within the package |
+| `package.json` | Package metadata: name, version, owners, dependencies |
+| `.npmignore` | Specifies which files are included in the published package |
+
+An `.eslintrc.json` is only needed if you must disable specific lint rules.
+
+## Write index.d.ts
+
+For a module package (the most common case), declare your types using ES module syntax:
+
+```typescript index.d.ts
+// Type definitions for my-library 1.2
+// Project: https://github.com/example/my-library
+// Definitions by: Your Name <https://github.com/yourusername>
+
+export interface Options {
+  timeout?: number;
+  retries?: number;
+}
+
+export function fetchData(url: string, options?: Options): Promise<string>;
+export function parseResult(data: string): Record<string, unknown>;
+```
+
+For a UMD package (usable both as a module and as a global), see the [TypeScript handbook on declaration file templates](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-modifying-module-d-ts.html).
+
+## Name the package
+
+- For an npm package `foo`, types go in `types/foo/`
+- For a non-npm package, the name must not conflict with any npm package (set `"nonNpm": true` in `package.json`)
+- For a scoped package `@foo/bar`, types go in `types/foo__bar/`
+
+## Write package.json
+
+```json package.json
+{
+  "private": true,
+  "name": "@types/my-package",
+  "version": "1.2.9999",
+  "projects": [
+    "https://github.com/example/my-library"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/my-package": "workspace:."
+  },
+  "owners": [
+    {
+      "name": "Your Name",
+      "githubUsername": "yourusername"
+    }
+  ]
+}
+```
+
+<Note>
+The version must be `major.minor.9999`. For example, if the library is at version `1.2.3`, use `1.2.9999`. The `.9999` suffix ensures the local package is always treated as newest during development.
+</Note>
+
+## Write tsconfig.json
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": ["es6"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "baseUrl": "../",
+    "typeRoots": ["../"]
+  },
+  "files": ["index.d.ts", "my-package-tests.ts"]
+}
+```
+
+## Write the test file
+
+The test file (`<my-package>-tests.ts`) validates that your types actually match the library's runtime behavior. It is type-checked but never executed.
+
+```typescript my-package-tests.ts
+import { fetchData, parseResult } from "my-package";
+import type { Options } from "my-package";
+
+// $ExpectType Promise<string>
+const result = fetchData("https://example.com");
+
+// With options
+const options: Options = { timeout: 5000, retries: 3 };
+const resultWithOptions = fetchData("https://example.com", options);
+
+// Parse result
+const parsed = parseResult("some data");
+
+// @ts-expect-error — wrong argument type
+fetchData(42);
+```
+
+Use `$ExpectType` to assert the expected type of an expression. Use `@ts-expect-error` to assert that a line produces a compile error.
+
+## Write .npmignore
+
+For packages with a single version:
+
+```ignore .npmignore
+*
+!**/*.d.ts
+!**/*.d.cts
+!**/*.d.mts
+!**/*.d.*.ts
+```
+
+## Test your package
+
+```bash
+pnpm test my-package
+```
+
+Fix any errors reported by dtslint before opening a PR.

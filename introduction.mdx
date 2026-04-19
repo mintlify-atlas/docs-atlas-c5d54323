@@ -1,0 +1,63 @@
+---
+title: "DefinitelyTyped: TypeScript type definitions repository"
+description: "DefinitelyTyped is the community-maintained repository of high-quality TypeScript type definitions, powering the @types/* ecosystem on npm."
+---
+
+DefinitelyTyped is one of the most active repositories on GitHub, hosting TypeScript type definitions for thousands of JavaScript libraries. Type definitions contributed here are automatically published to the `@types` scope on npm, making them available to TypeScript developers worldwide.
+
+## How it works
+
+When a JavaScript library doesn't include TypeScript types, DefinitelyTyped fills the gap. Contributors write `.d.ts` declaration files that describe the library's API, and these are published as `@types/<package-name>` on npm. TypeScript automatically picks up these types when you install them.
+
+## Repository status
+
+<CardGroup cols={2}>
+  <Card title="CI build status" icon="circle-check" href="https://github.com/DefinitelyTyped/DefinitelyTyped/actions/workflows/CI.yml">
+    Most recent build type-checked and linted cleanly
+  </Card>
+  <Card title="Publishing status" icon="upload" href="https://github.com/microsoft/DefinitelyTyped-tools/actions/workflows/publish-packages.yml">
+    All packages are published to npm via DefinitelyTyped-tools
+  </Card>
+</CardGroup>
+
+<Note>
+If the CI or publishing status appears wrong, reach out in the [Definitely Typed channel on the TypeScript Community Discord](https://discord.gg/typescript).
+</Note>
+
+## The @types ecosystem
+
+The `master` branch is automatically published to the `@types` scope on npm by [DefinitelyTyped-tools](https://github.com/microsoft/DefinitelyTyped-tools/tree/master/packages/publisher). Each package in the `types/` directory of the repository becomes a separate npm package under `@types/`.
+
+For example:
+- `types/node/` → `@types/node` on npm
+- `types/react/` → `@types/react` on npm
+- `types/lodash/` → `@types/lodash` on npm
+
+## Contribution philosophy
+
+DefinitelyTyped's goal is to include type definitions for packages that are actually in use, not every package on npm. Before submitting a new definition, you should intend to use it in your own project.
+
+<Tip>
+If you are a library author and your package is written in TypeScript, consider [bundling declaration files](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html) in your package directly instead of contributing to DefinitelyTyped.
+</Tip>
+
+## History
+
+Definitely Typed is one of the most active repositories on GitHub. [@johnnyreilly wrote a detailed history](https://johnnyreilly.com/definitely-typed-the-movie) of the project, from its creation by [@borisyankov](https://github.com/borisyankov) to its current position as a pivotal part of the TypeScript ecosystem.
+
+## Get involved
+
+<CardGroup cols={2}>
+  <Card title="Install types" icon="download" href="/using-types/installing-types">
+    Use @types packages in your TypeScript project
+  </Card>
+  <Card title="Contribute" icon="code-pull-request" href="/contributing/overview">
+    Add or improve type definitions
+  </Card>
+  <Card title="Package structure" icon="folder-tree" href="/package-structure/index-dts">
+    Learn how packages are organized
+  </Card>
+  <Card title="Discord community" icon="discord" href="https://discord.gg/typescript">
+    Get help from the TypeScript community
+  </Card>
+</CardGroup>

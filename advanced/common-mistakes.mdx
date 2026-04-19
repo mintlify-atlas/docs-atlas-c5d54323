@@ -1,0 +1,160 @@
+---
+title: "Common mistakes in TypeScript declaration files"
+description: "Avoid frequent errors when writing .d.ts files for DefinitelyTyped: incorrect export patterns, generic misuse, forbidden types, and tsconfig pitfalls."
+---
+
+Writing accurate TypeScript declaration files requires care. This page covers the most common mistakes found in DefinitelyTyped contributions and how to fix them.
+
+## Using export default for CommonJS packages
+
+**Mistake:** Using `export default` when the library uses `module.exports =`.
+
+```typescript
+// ❌ Wrong for a CommonJS package
+export default function doSomething(): void;
+```
+
+**Fix:** Use `export =` and put associated types in a namespace:
+
+```typescript
+// ✅ Correct
+declare function doSomething(options: doSomething.Options): void;
+declare namespace doSomething {
+    interface Options { verbose: boolean; }
+}
+export = doSomething;
+```
+
+## Using interface with new() instead of declaring a class
+
+**Mistake:** Defining a newable interface instead of a class.
+
+```typescript
+// ❌ This defines a "newable" object type, not a class
+interface Foo { new(): Foo; }
+```
+
+**Fix:** Declare a class:
+
+```typescript
+// ✅ Correct
+declare class Foo {
+    constructor();
+}
+```
+
+## Unconstrained generic type parameters
+
+**Mistake:** Using a type parameter that doesn't appear in any parameter — this is a disguised type assertion.
+
+```typescript
+// ❌ T is unconstrained and doesn't appear in parameters
+function parseJson<T>(json: string): T;
+```
+
+**Fix:** Use a real type assertion, or only use generics where the type parameter is constrained by a parameter:
+
+```typescript
+// ✅ If the return type is truly unknown, use any or unknown
+function parseJson(json: string): unknown;
+
+// ✅ Generic is valid when it appears in parameters
+function identity<T>(value: T): T;
+```
+
+## Using Function and Object types
+
+**Mistake:** Using the broad `Function` or `Object` types.
+
+```typescript
+// ❌ Too broad
+function on(event: string, handler: Function): void;
+function merge(a: Object, b: Object): Object;
+```
+
+**Fix:** Use specific signatures and types:
+
+```typescript
+// ✅ Specific function type
+function on(event: string, handler: (data: unknown) => void): void;
+
+// ✅ Use object (lowercase) or a generic constraint
+function merge<T extends object>(a: T, b: Partial<T>): T;
+```
+
+## Using any in union types
+
+**Mistake:** Putting `any` in a union — the result is just `any`.
+
+```typescript
+// ❌ string is meaningless here; the type is just any
+type Result = string | any;
+```
+
+**Fix:** Use `any` alone if truly unknown, or a real union:
+
+```typescript
+// ✅ If truly unknown
+type Result = any;
+
+// ✅ If a real union is intended
+type Result = string | Record<string, unknown>;
+```
+
+## Missing ReadonlyArray for non-mutating parameters
+
+**Mistake:** Using a mutable array type when the function doesn't modify the array.
+
+```typescript
+// ❌ Implies the function might mutate the array
+function sum(nums: number[]): number;
+```
+
+**Fix:** Use `ReadonlyArray`:
+
+```typescript
+// ✅ Communicates non-mutation
+function sum(nums: ReadonlyArray<number>): number;
+```
+
+## Enabling esModuleInterop or allowSyntheticDefaultImports
+
+**Mistake:** Adding `esModuleInterop` or `allowSyntheticDefaultImports` to `tsconfig.json`.
+
+These options are forbidden in DefinitelyTyped packages because consumers don't inherit them — types that rely on these options break for users who don't have them enabled.
+
+```json
+// ❌ Forbidden
+{
+    "compilerOptions": {
+        "esModuleInterop": true
+    }
+}
+```
+
+**Fix:** Use CJS-compatible import syntax instead:
+
+```typescript
+// ✅
+import myLib = require("my-lib");
+```
+
+## Incorrect .npmignore
+
+**Mistake:** An `.npmignore` that doesn't follow the required pattern causes CI to fail.
+
+**Fix:** Use the standard format:
+
+```ignore .npmignore
+*
+!**/*.d.ts
+!**/*.d.cts
+!**/*.d.mts
+!**/*.d.*.ts
+```
+
+## Related resources
+
+- [TypeScript handbook: Do's and Don'ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
+- [Testing guide](/contributing/testing)
+- [Module formats](/advanced/module-formats)

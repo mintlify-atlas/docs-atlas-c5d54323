@@ -1,0 +1,97 @@
+---
+title: "Installing @types packages from DefinitelyTyped"
+description: "Learn how to install TypeScript type definitions from DefinitelyTyped using npm, yarn, or pnpm, and how to reference them in your tsconfig."
+---
+
+DefinitelyTyped publishes TypeScript type definitions for thousands of JavaScript libraries as `@types/*` packages on npm. Installing them adds full type safety, autocomplete, and inline documentation to libraries that don't ship their own types.
+
+## Find the right package
+
+For most npm packages, the corresponding types package follows a simple naming pattern:
+
+```
+@types/<package-name>
+```
+
+For example, to get types for `lodash`, install `@types/lodash`. You can search for available packages on [npmjs.com](https://www.npmjs.com) or by running:
+
+```bash
+npm info @types/lodash
+```
+
+## Install using your package manager
+
+<CodeGroup>
+```bash npm
+npm install --save-dev @types/node
+```
+```bash yarn
+yarn add --dev @types/node
+```
+```bash pnpm
+pnpm add --save-dev @types/node
+```
+</CodeGroup>
+
+Type packages should always be installed as **dev dependencies** (`--save-dev`), since they are only needed at compile time, not at runtime.
+
+## Automatic inclusion
+
+Once installed, the TypeScript compiler automatically includes `@types` packages. You do not need to add anything to your `tsconfig.json` in most cases.
+
+If you are **not using ES modules**, you may need to add a triple-slash reference directive to your entry file:
+
+```typescript
+/// <reference types="node" />
+```
+
+For more information on declaration files and how they work, see the [TypeScript handbook on declaration files](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html).
+
+## Manually referencing .d.ts files
+
+If you cannot find an `@types` package for a library, look for `.d.ts` files inside the package's `node_modules` directory. You can manually include them with:
+
+```typescript
+/// <reference path="node_modules/some-library/index.d.ts" />
+```
+
+## Controlling which @types are included
+
+By default, TypeScript includes all `@types` packages found in `node_modules/@types`. You can restrict this with the `types` field in `tsconfig.json`:
+
+```json tsconfig.json
+{
+  "compilerOptions": {
+    "types": ["node", "jest", "express"]
+  }
+}
+```
+
+With this configuration, only the listed packages are included globally. You can still import from other `@types` packages explicitly.
+
+<Note>
+The `types` field controls which packages contribute **global declarations**. It does not affect packages that you import explicitly with `import` statements.
+</Note>
+
+## Checking whether a package has bundled types
+
+Many modern packages ship their own TypeScript types and do not need a separate `@types` install. You can check:
+
+1. Look for a `"types"` or `"typings"` field in the package's `package.json`
+2. Look for a TypeScript (TS) badge on npmjs.com — this indicates bundled types
+3. Look for a DT badge on npmjs.com — this indicates types are available via DefinitelyTyped
+
+<Tip>
+If a package bundles its own types, you do not need to install an `@types` package. Installing both can cause conflicts.
+</Tip>
+
+## Related topics
+
+<CardGroup cols={2}>
+  <Card title="Scoped packages" icon="at" href="/using-types/scoped-packages">
+    Install types for packages in an npm scope like @babel or @aws-sdk
+  </Card>
+  <Card title="Support window" icon="calendar" href="/using-types/support-window">
+    Learn which TypeScript versions are supported
+  </Card>
+</CardGroup>

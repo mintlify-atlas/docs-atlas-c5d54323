@@ -1,0 +1,109 @@
+---
+title: "Reviewing pull requests in DefinitelyTyped"
+description: "How to assess, review, and act on pull requests to DefinitelyTyped, including criteria for amending existing packages, new packages, and handling edge cases."
+---
+
+This guide covers how to evaluate and act on the two main types of PRs in DefinitelyTyped: amendments to existing packages and new package submissions.
+
+## Reviewing an amended package
+
+An ideal amendment PR:
+
+- Links to the API being added or changed
+- Contains only additions to existing types
+- Includes test code covering the new or changed usage
+
+For these PRs, review should be quick. Check the diff, look for any comments asking for a delayed merge, and if everything looks good, leave a thanks comment and hit merge.
+
+### Key questions to ask
+
+**Will this PR break existing code?**
+
+Breaking changes can be subtle — an addition-only PR may still break subclasses of a modified class. Check whether:
+
+- Parameter types were narrowed
+- Required fields were added to interfaces
+- Return types changed incompatibly
+
+We try to ensure types are a semver match on `major.minor` for the library they represent. A build-breaking change may require sign-off from the library maintainer.
+
+**How popular is the package?**
+
+Widely-used packages (Node.js, Express, React, Jest) require more scrutiny and typically need two sign-offs. If you recognize a package as popular, treat it with extra care.
+
+**Does it have tests?**
+
+Some older packages don't have tests set up. Whether missing tests are a blocker depends on how likely the change is to break existing code. Use your judgment.
+
+**Is strict mode configured?**
+
+The `tsconfig.json` should have strict mode equivalent settings:
+
+```json
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true
+    }
+}
+```
+
+<Warning>
+Packages missing these settings are incorrect. Flag it, but it needn't block an unrelated fix.
+</Warning>
+
+**Are exports correct?**
+
+Check that `export default` is not used for a CommonJS package (`module.exports = ...`). React packages get a pass on this. The `tsconfig.json` must not include `esModuleInterop: true` or `allowSyntheticDefaultImports: true`, which would hide export mismatches.
+
+```ts
+// Cannot have `export default` in the dts
+module.exports = {
+    thing: () => "hello world",
+};
+```
+
+```ts
+// Can import via `export default`
+module.exports.default = {
+    thing: () => "hello world",
+};
+```
+
+**Does the `.eslintrc.json` have unexpected rule exceptions?**
+
+Check that the lint config doesn't suppress rules in ways that could mask real issues. Rules should only be disabled for a specific line, not for the entire package.
+
+## Reviewing a new package
+
+When a PR adds a brand-new type definition package, additionally check:
+
+<Steps>
+  <Step title="Check if the author is the library maintainer">
+    If they are, they could use [`--declaration` and `--allowJs`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#--declaration-and---allowjs) in TypeScript to generate types and bundle them directly in the npm package, rather than contributing to DefinitelyTyped.
+  </Step>
+  <Step title="Verify the package has a realistic use case">
+    New definitions must be motivated by actual consumption. "Make-work" PRs without concrete usage motivation should be closed.
+  </Step>
+  <Step title="Confirm the package structure is correct">
+    The package should include `index.d.ts`, a tests file, `tsconfig.json`, and `package.json`. Use `npx dts-gen --dt --name <package-name> --template module` to generate the scaffold.
+  </Step>
+</Steps>
+
+## Handling merge conflicts
+
+If a PR has merge conflicts and the change is trivial, you can edit the PR directly in the GitHub UI. Otherwise, ask the author to rebase and come back the next day.
+
+## When to request changes vs. approve
+
+| Action | When to use |
+|--------|-------------|
+| Request changes | Incorrect types, missing tests on risky changes, forbidden `tsconfig` settings |
+| Approve | Types are correct, tests are adequate, change is well-scoped |
+| Blessing | Advance the PR without providing a full expert review |
+
+<Tip>
+See [Blessings](/admin/blessings) for how to advance a PR through the lifecycle without a formal GitHub review.
+</Tip>

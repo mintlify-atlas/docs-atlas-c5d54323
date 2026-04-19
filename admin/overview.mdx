@@ -1,0 +1,48 @@
+---
+title: "Maintainer guide: on-call duties for DefinitelyTyped"
+description: "Overview of the DefinitelyTyped maintainer on-call rotation, goals, responsibilities, and the project board workflow for triaging and merging pull requests."
+---
+
+DefinitelyTyped maintainers follow a weekly on-call rotation managed by the TypeScript team. This guide explains the on-call responsibilities, project board workflow, and key concepts for maintainers.
+
+## On-call responsibilities
+
+When on-call, your primary goal is to keep the open PR queue moving. Use the [Projects board](https://github.com/orgs/DefinitelyTyped/projects/1) to see the current state of all open PRs.
+
+Work through the board from **left to right**, starting with the oldest PR in each section. The [`focus-dt`](https://github.com/DefinitelyTyped/focus-dt) tool can help by automatically loading the next PR to review in your browser.
+
+Your role is not a traditional code review — it's an assessment of how well changes fit the rest of the type definitions and whether they could break builds for users or systems. Delegate the actual expertise to people who know the library: the definition owners.
+
+## Project board columns
+
+| Column | Description |
+|--------|-------------|
+| Needs Maintainer Review | Main maintainer queue — PRs requiring maintainer attention |
+| Needs Maintainer Action | PRs that cannot be dismissed with a blessing alone |
+| Waiting for Code Reviews | Awaiting approval from definition owners |
+| Waiting for Author to Merge | Approved — the PR author can self-merge |
+| Needs Author Action | Author must respond to feedback or make changes |
+| Recently Merged | Successfully merged PRs |
+| Other | Temporary state while test results come in |
+
+## Key principles
+
+- **Popular packages break more installs** — give them more time and scrutiny
+- **Delegate to experts** — owners who know the library are better reviewers than maintainers for domain-specific changes
+- **Scope matters** — narrow, focused PRs are easier to review and merge
+- **The bot handles most of the work** — [dt-mergebot](https://github.com/DefinitelyTyped/dt-mergebot/) automates labeling, notifications, and lifecycle transitions
+
+<CardGroup cols={2}>
+  <Card title="PR lifecycle" icon="arrows-spin" href="/admin/pr-lifecycle">
+    Review criteria and how to assess each type of PR
+  </Card>
+  <Card title="Blessings" icon="thumbs-up" href="/admin/blessings">
+    How to use review-blessings and merge-blessings
+  </Card>
+  <Card title="Tools" icon="wrench" href="/admin/tools">
+    Tools that help with the on-call workflow
+  </Card>
+  <Card title="Bot automation" icon="robot" href="/admin/bot-automation">
+    How dt-mergebot manages the PR lifecycle
+  </Card>
+</CardGroup>

@@ -1,0 +1,102 @@
+---
+title: "tsconfig.json settings for DefinitelyTyped packages"
+description: "Required TypeScript compiler options for DefinitelyTyped packages: noImplicitAny, strictNullChecks, strictFunctionTypes, and forbidden esModuleInterop settings."
+---
+
+Every DefinitelyTyped package must include a `tsconfig.json` that configures the TypeScript compiler for type-checking the package's declarations and tests.
+
+## Required settings
+
+The following compiler options are required in every `tsconfig.json`:
+
+```json tsconfig.json
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": ["es6"],
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "noEmit": true,
+        "baseUrl": "../",
+        "typeRoots": ["../"]
+    },
+    "files": [
+        "index.d.ts",
+        "my-package-tests.ts"
+    ]
+}
+```
+
+## Required strict options
+
+| Option | Why it's required |
+|--------|------------------|
+| `noImplicitAny` | Prevents implicit `any` types that hide errors |
+| `noImplicitThis` | Catches `this` typed as `any` |
+| `strictFunctionTypes` | Enables stricter function type checking |
+| `strictNullChecks` | Makes `null` and `undefined` explicit |
+
+Packages that don't have these set are considered incorrect — you can help by submitting a PR to enable them.
+
+## Optional settings
+
+You may add these settings when needed:
+
+```json
+{
+    "compilerOptions": {
+        "target": "es6",       // needed for async functions
+        "jsx": "react",        // needed for JSX types
+        "lib": ["es6", "dom"]  // add "dom" for browser APIs
+    }
+}
+```
+
+## Forbidden settings
+
+### esModuleInterop and allowSyntheticDefaultImports
+
+These options are **not allowed** in DefinitelyTyped packages:
+
+```json
+// ❌ Forbidden
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
+    }
+}
+```
+
+These options change how default imports work for CommonJS modules. Because type definition consumers don't inherit the `tsconfig.json` from `@types` packages, using these options would produce types that only work correctly when the consumer also has them enabled — which may not be the case.
+
+Instead of:
+```typescript
+import Component from "./component"; // Only valid with esModuleInterop
+```
+
+Use:
+```typescript
+import Component = require("./component"); // Always correct for CJS
+```
+
+## The files array
+
+Always list both the declaration file and the test file:
+
+```json
+{
+    "files": [
+        "index.d.ts",
+        "my-package-tests.ts"
+    ]
+}
+```
+
+If you have additional declaration files, include them here or ensure they are referenced from `index.d.ts` or the test file.
+
+## Multiple TypeScript version support
+
+When supporting different TypeScript versions via `typesVersions`, each version subfolder needs its own `tsconfig.json` pointing to the correct files.
